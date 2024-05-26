@@ -1,0 +1,66 @@
+---
+---
+
+<!-- data-spotlight en el container -->
+<div
+  class="w-full h-full col-span-2 rounded-3xl relative p-[3px] bg-slate-200 card-container before:absolute before:w-48 before:h-48 before:-left-24 before:-top-24 before:bg-[--primary-color] before:rounded-full before:opacity-0 before:pointer-events-none before:transition-opacity before:duration-500 before:translate-x-[var(--mouse-x)] before:translate-y-[var(--mouse-y)] before:group-hover:opacity-100 before:z-10 before:blur-[70px] overflow-hiddenx"
+>
+  <div
+    class="relative h-full bg-[--background-color] p-6 pb-8 rounded-[calc(24px-3px)] z-20 overflow-hidden card"
+  >
+    <slot />
+  </div>
+</div>
+
+<style>
+  .card-container {
+    position: relative;
+    perspective: 1000px;
+  }
+
+  .card {
+    position: relative;
+    transition: transform 0.5s;
+  }
+
+  .card:hover::before {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  const initSpotlight = (container) => {
+    const cards = Array.from(container.children);
+    let containerSize = { w: 0, h: 0 };
+
+    const updateContainerSize = () => {
+      containerSize.w = container.offsetWidth;
+      containerSize.h = container.offsetHeight;
+    };
+
+    const handleMouseMove = (event) => {
+      const { clientX, clientY } = event;
+      const rect = container.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      const inside =
+        x < containerSize.w && x > 0 && y < containerSize.h && y > 0;
+
+      if (inside) {
+        cards.forEach((card) => {
+          const cardRect = (card as HTMLElement).getBoundingClientRect();
+          const cardX = -(cardRect.left - rect.left) + x;
+          const cardY = -(cardRect.top - rect.top) + y;
+          (card as HTMLElement).style.setProperty("--mouse-x", `${cardX}px`);
+          (card as HTMLElement).style.setProperty("--mouse-y", `${cardY}px`);
+        });
+      }
+    };
+
+    updateContainerSize();
+    window.addEventListener("resize", updateContainerSize);
+    window.addEventListener("mousemove", handleMouseMove);
+  };
+
+  document.querySelectorAll("[data-spotlight]").forEach(initSpotlight);
+</script>

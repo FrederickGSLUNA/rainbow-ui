@@ -9,13 +9,49 @@ import FooterSection from "./bentoSections/FooterSection.astro"
 import StyleSection from "./bentoSections/StyleSection.astro"
 ---
 
-<section id="bento" class="w-full h-screen grid grid-cols-8 grid-rows-6 gap-6 p-6">
-  <LogoSection class="w-full h-full border border-slate-500 col-span-2 rounded-3xl"/>
-  <ColorsSection class="w-full h-full border border-slate-500 col-span-4 row-span-2 rounded-3xl"/>
-  <ActionsSection class="w-full h-full border border-slate-500 col-span-2 row-span-2 rounded-3xl"/>
-  <ComponentsSection class="w-full h-full border border-slate-500 col-span-2 row-span-4 rounded-3xl"/>
-  <IframeDashboardSection class="w-full h-full border border-slate-500 col-span-3 row-span-3 rounded-3xl"/>
-  <IframeBlogSection class="w-full h-full border border-slate-500 col-span-3 row-span-3 rounded-3xl"/>
-  <FooterSection class="w-full h-full border border-slate-500 col-span-6 rounded-3xl"/>
-  <StyleSection class="w-full h-full border border-slate-500 col-span-2 rounded-3xl"/>
+<section id="bento" class="w-full h-screen grid grid-cols-8 grid-rows-6 gap-6 p-6 group" data-spotlight>
+  <LogoSection class="overflow-hidden rounded-3xl col-span-2"/>
+  <ColorsSection class="overflow-hidden rounded-3xl col-span-4 row-span-2"/>
+  <ActionsSection class="overflow-hidden rounded-3xl col-span-2 row-span-2"/>
+  <ComponentsSection class="overflow-hidden rounded-3xl col-span-2 row-span-4"/>
+  <IframeDashboardSection class="overflow-hidden rounded-3xl col-span-3 row-span-3"/>
+  <IframeBlogSection class="overflow-hidden rounded-3xl col-span-3 row-span-3"/>
+  <FooterSection class="overflow-hidden rounded-3xl col-span-6"/>
+  <StyleSection class="overflow-hidden rounded-3xl col-span-2"/>
 </section>
+
+<script>
+  const initSpotlight = (container) => {
+    const cards = Array.from(container.children);
+    let containerSize = { w: 0, h: 0 };
+
+    const updateContainerSize = () => {
+      containerSize.w = container.offsetWidth;
+      containerSize.h = container.offsetHeight;
+    };
+
+    const handleMouseMove = (event) => {
+      const { clientX, clientY } = event;
+      const rect = container.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      const inside = x < containerSize.w && x > 0 && y < containerSize.h && y > 0;
+
+      if (inside) {
+        cards.forEach((card) => {
+          const cardRect = (card as HTMLElement).getBoundingClientRect();
+          const cardX = -(cardRect.left - rect.left) + x;
+          const cardY = -(cardRect.top - rect.top) + y;
+          (card as HTMLElement).style.setProperty('--mouse-x', `${cardX}px`);
+          (card as HTMLElement).style.setProperty('--mouse-y', `${cardY}px`);
+        });
+      }
+    };
+
+    updateContainerSize();
+    window.addEventListener('resize', updateContainerSize);
+    window.addEventListener('mousemove', handleMouseMove);
+  };
+
+  document.querySelectorAll('[data-spotlight]').forEach(initSpotlight);
+</script>
